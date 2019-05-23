@@ -20,7 +20,9 @@ Each vault's configuration is composed of two parts:
 1. `[Node.HashicorpVaults.Client]` - toml table to configure the Quorum connection to the Vault server
 1. `[[Node.HashicorpVaults.Secrets]]` - toml array of tables to configure the secrets (i.e. accounts) to be retrieved from the vault 
 
+
 ### Client configuration fields
+      
 ```toml
 [Node.HashicorpVaults.Client]
 Url = "hostname:port of the Vault server" 
@@ -30,6 +32,11 @@ ClientKey = "(optional) path to an unencrypted, PEM-encoded private key which co
 CaCert = "(optional) path to a PEM-encoded CA certificate file. Used to verify the Vault server's SSL certificate"
 EnvVarPrefix = "(optional) prefix to apply to environment variable names when fetching authentication credentials"
 ```
+
+!!! caution
+    The Vault client library used by Quorum can also be configured by setting the [default Vault environment variables](https://www.vaultproject.io/docs/commands/#environment-variables) (e.g. setting `VAULT_CACERT` instead of `CaCert`).  Any values set in the `.toml` file will take precedence.  
+    
+    It is not recommended to configure the client using these environment variables as this configuration will be applied to all clients unless explicitly overridden.  Be aware that if these environment variables are set the actual configuration being applied to the created clients may not be the same as has been configured in the `.toml`.
 
 ### Secret configuration fields
 ```toml
