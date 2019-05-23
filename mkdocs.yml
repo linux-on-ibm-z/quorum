@@ -25,6 +25,11 @@ nav:
     - Transaction Processing: Transaction Processing/Transaction Processing.md
     - Security:
         - Security & Permissioning: Security/Security & Permissioning.md
+    - Managing Accounts:
+        - Overview: Security/Accounts.md
+        - Configuring Hashicorp Vault: Security/Configuring-Hashicorp-Vault.md
+        - Configuring Quorum to use Vault: Security/Configuring-Quorum-to-use-Vault.md
+        - Creating new accounts in Vault: Security/Creating-new-accounts-in-Vault.md
     - Privacy:
         - Tessera:
             - What is Tessera: Privacy/Tessera/Tessera.md
