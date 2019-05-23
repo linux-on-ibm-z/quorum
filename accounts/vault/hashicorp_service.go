@@ -28,11 +28,21 @@ type hashicorpService struct {
 // clientDelegateFactory defines a factory function to create a delegate for the client of the Hashicorp Vault api.  This has been defined to enable mocking of the client in testing.
 //
 // The defaultClientDelegateFactory should be used in most situations except where mocking of the client is required.  In this case, define a custom clientDelegateFactory to return a custom implementation of clientDelegate.
-type clientDelegateFactory func() (clientDelegate, error)
+type clientDelegateFactory func(clientConfig HashicorpClientConfig) (clientDelegate, error)
 
-// defaultClientDelegateFactory creates a clientDelegate using the default Hashicorp api configuration
-func defaultClientDelegateFactory() (clientDelegate, error) {
+// defaultClientDelegateFactory creates a clientDelegate using the default Hashicorp api configuration and applies any TLS config that is provided
+func defaultClientDelegateFactory(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 	conf := api.DefaultConfig()
+
+	// CaCert is required for both 1-way and 2-way TLS.  If it is not provided then we assume user has configured for insecure communication
+	if clientConfig.CaCert != "" {
+		t := createTlsConfig(clientConfig)
+
+		if err := conf.ConfigureTLS(t); err != nil {
+			return nil, err
+		}
+	}
+
 	client, err := api.NewClient(conf)
 
 	if err != nil {
@@ -40,6 +50,17 @@ func defaultClientDelegateFactory() (clientDelegate, error) {
 	}
 
 	return defaultClientDelegate{client}, nil
+}
+
+func createTlsConfig(clientConfig HashicorpClientConfig) *api.TLSConfig {
+	t := &api.TLSConfig{
+		CACert: clientConfig.CaCert,
+		ClientCert: clientConfig.ClientCert,
+		ClientKey: clientConfig.ClientKey,
+		Insecure: false,
+	}
+
+	return t
 }
 
 // clientDelegate is used to expose and act as a delegate for the methods of the Hashicorp Vault client api required by a the hashicorpService.  This is to enable mocking of the client when testing.
@@ -198,7 +219,7 @@ func (s *hashicorpService) Open() error {
 	s.stateLock.Lock()
 	defer s.stateLock.Unlock()
 
-	client, err := s.clientFactory()
+	client, err := s.clientFactory(s.clientConfig)
 
 	if err != nil {
 		return err

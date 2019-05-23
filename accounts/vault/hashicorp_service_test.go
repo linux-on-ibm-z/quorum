@@ -63,6 +63,27 @@ func (m mockLogicalDelegate) Write(path string, data map[string]interface{}) (*a
 	return m.writeMock(path, data)
 }
 
+func TestDefaultClientDelegateFactoryAppliesTlsConfigIfProvided(t *testing.T) {
+	clientConfig := HashicorpClientConfig{
+		CaCert: "/path/to/ca.pem",
+		ClientCert: "/path/to/client.pem",
+		ClientKey: "/path/to/client.key",
+	}
+
+	_, err := defaultClientDelegateFactory(clientConfig)
+
+	if err == nil {
+		t.Errorf("expected error when configuring client for TLS")
+	}
+
+	want := "open /path/to/client.pem: no such file or directory"
+	got := err.Error()
+
+	if got != want {
+		t.Errorf("incorrect error returned\nwant: %v\ngot : %v", want, got)
+	}
+}
+
 func TestAccountsByUrl(t *testing.T) {
 	a1 := accounts.Account{URL: accounts.URL{Scheme: "http", Path: "localhost:8080"}}
 	a2 := accounts.Account{URL: accounts.URL{Scheme: "http", Path: "localhost:9080"}}
@@ -212,7 +233,7 @@ func TestOpenErrorCreatingClientReturnsError(t *testing.T) {
 	e := errors.New("an error")
 
 	var mockClientDelegateFactory clientDelegateFactory
-	mockClientDelegateFactory = func() (clientDelegate, error) {
+	mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 		return mockClientDelegate{}, e
 	}
 
@@ -237,7 +258,7 @@ func TestOpenErrorConfiguringClientReturnsError(t *testing.T) {
 	}
 
 	var mockClientDelegateFactory clientDelegateFactory
-	mockClientDelegateFactory = func() (clientDelegate, error) {
+	mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 		return mockClientDelegate, nil
 	}
 
@@ -262,7 +283,7 @@ func TestOpenWithNoEnvVarsSetReturnsError(t *testing.T) {
 	}
 
 	var mockClientDelegateFactory clientDelegateFactory
-	mockClientDelegateFactory = func() (clientDelegate, error) {
+	mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 		return mockClientDelegate, nil
 	}
 
@@ -292,7 +313,7 @@ func TestOpenOnlyRoleIdEnvVarSetReturnsError(t *testing.T) {
 	}
 
 	var mockClientDelegateFactory clientDelegateFactory
-	mockClientDelegateFactory = func() (clientDelegate, error) {
+	mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 		return mockClientDelegate, nil
 	}
 
@@ -322,7 +343,7 @@ func TestOpenOnlySecretIdEnvVarSetReturnsError(t *testing.T) {
 	}
 
 	var mockClientDelegateFactory clientDelegateFactory
-	mockClientDelegateFactory = func() (clientDelegate, error) {
+	mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 		return mockClientDelegate, nil
 	}
 
@@ -388,7 +409,7 @@ func TestOpenApproleEnvVarsCreatesAuthenticatedClient(t *testing.T) {
 			}
 
 			var mockClientDelegateFactory clientDelegateFactory
-			mockClientDelegateFactory = func() (clientDelegate, error) {
+			mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 				return mockClientDelegate, nil
 			}
 
@@ -504,7 +525,7 @@ func TestOpenPrefixedAndGlobalEnvVarsPrecedence(t *testing.T) {
 			}
 
 			var mockClientDelegateFactory clientDelegateFactory
-			mockClientDelegateFactory = func() (clientDelegate, error) {
+			mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 				return mockClientDelegate, nil
 			}
 
@@ -556,7 +577,7 @@ func TestOpenErrorIfPrefixSetInConfigButNoPrefixEnvVarsSet(t *testing.T) {
 			}
 
 			var mockClientDelegateFactory clientDelegateFactory
-			mockClientDelegateFactory = func() (clientDelegate, error) {
+			mockClientDelegateFactory = func(clientConfig HashicorpClientConfig) (clientDelegate, error) {
 				return mockClientDelegate, nil
 			}
 
