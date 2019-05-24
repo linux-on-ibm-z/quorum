@@ -444,6 +444,12 @@ func makeAccountManager(conf *Config) (*accounts.Manager, string, error) {
 	}
 
 	if conf.HashicorpVaults != nil {
+		for _, v := range conf.HashicorpVaults {
+			if err := v.Validate(false); err != nil {
+				return nil, "", err
+			}
+		}
+
 		vaultBackend := vault.NewHashicorpBackend(conf.HashicorpVaults)
 		backends = append(backends, vaultBackend)
 	}

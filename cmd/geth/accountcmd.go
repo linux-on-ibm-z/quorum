@@ -329,6 +329,10 @@ func accountCreate(ctx *cli.Context) error {
 }
 
 func createAcctInHashicorpVault(cfg vault.HashicorpWalletConfig) (common.Address, error) {
+	if err := cfg.Validate(true); err != nil {
+		return common.Address{}, err
+	}
+
 	return vault.GenerateAndStore(cfg)
 }
 

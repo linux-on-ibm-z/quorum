@@ -43,7 +43,7 @@ EnvVarPrefix = "(optional) prefix to apply to environment variable names when fe
 [[Node.HashicorpVaults.Secrets]]
 Name = "name of a Vault KV secret"
 SecretEngine = "name of an enabled KV v2 secret engine"
-Version = "(default = 0, i.e. latest) version of the secret to retrieve"
+Version = "version of the secret to retrieve, must be non-zero"
 AccountID = "ID for account/address component of Vault secret"
 KeyID = "ID for private key component of Vault secret"
 ```

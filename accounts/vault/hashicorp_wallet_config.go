@@ -9,12 +9,52 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/pkg/errors"
 	"strconv"
+	"strings"
 )
 
 // HashicorpWalletConfig defines the configuration values required to create a client for the Vault and to define the secrets that should be read from/written to
 type HashicorpWalletConfig struct {
 	Client HashicorpClientConfig `toml:",omitempty"`
 	Secrets    []HashicorpSecret     `toml:",omitempty"`
+}
+
+// Validate checks that the HashicorpWalletConfig has the minimum fields defined to be a valid configuration.  If the configuration is invalid an error is returned describing which fields have not been defined otherwise nil is returned.
+//
+// If skipVersion is true, the secret version will not be validated.  For wallets intended to be used for retrieving from a Vault (i.e. in normal node operation) it is not recommended to use skipVersion as this will allow secrets to be configured with version=0 (i.e. always retrieve the latest version).  This is to protect against secrets being updated and a node then being unable to access the original accounts it was configured with because the wallet only ever retrieves the latest version of the secret.
+//
+// For wallets intended to be used to write to the vault (i.e. in new account creation) skipVersion should be used as it is not necessary to specify the version number.
+func (w HashicorpWalletConfig) Validate(skipVersion bool) error {
+	var errs []string
+
+	if w.Client.Url == "" {
+		errs = append(errs, fmt.Sprint("Invalid vault client config: Vault url must be provided"))
+	}
+
+	for _, s := range w.Secrets {
+
+		if s.Name == "" {
+			errs = append(errs, fmt.Sprintf("Invalid vault secret config, vault=%v: Name must be provided", w.Client.Url))
+		}
+
+		if s.SecretEngine == "" {
+			errs = append(errs, fmt.Sprintf("Invalid vault secret config, vault=%v, secret=%v: SecretEngine must be provided", w.Client.Url, s.Name))
+		}
+
+		if s.KeyID == "" || s.AccountID == "" {
+			errs = append(errs, fmt.Sprintf("Invalid vault secret config, vault=%v, secret=%v: KeyID and AccountID must be provided", w.Client.Url, s.Name))
+		}
+
+		if s.Version <= 0 && !skipVersion {
+			errs = append(errs, fmt.Sprintf("Invalid vault secret config, vault=%v, secret=%v: Version must be specified for vault secret and must be greater than zero", w.Client.Url, s.Name))
+		}
+
+	}
+
+	if len(errs) > 0 {
+		return errors.New("\n" + strings.Join(errs, "\n"))
+	}
+
+	return nil
 }
 
 // HashicorpClientConfig defines the configuration values required by the vaultWallet to create a client to the Hashicorp Vault
