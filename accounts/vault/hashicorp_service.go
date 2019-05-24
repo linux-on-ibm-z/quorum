@@ -368,7 +368,7 @@ func (s *hashicorpService) GetAccounts() ([]accounts.Account, []error) {
 	return accts, errs
 }
 
-// getAccountUrl creates the url for a particular HashicorpSecret, including the secret name, secret engine name, and version.  This url can be used to with the Hashicorp Vault HTTP api to retrieve the secret values.
+// getAccountUrl creates the url for a particular HashicorpSecret, including the secret name, secret engine name, and version.  This url can be used with the Hashicorp Vault HTTP api to retrieve the secret values.
 func (s *hashicorpService) getAccountUrl(secret HashicorpSecret) (accounts.URL, error) {
 	path, _, err := secret.toRequestData()
 
@@ -460,6 +460,7 @@ func (s *hashicorpService) GetPrivateKey(account accounts.Account) (*ecdsa.Priva
 		return &ecdsa.PrivateKey{}, errors.WithMessage(err, "unable to get secret URL from data")
 	}
 
+	//TODO reliably zero this response and all values extracted from it once key has been retrieved
 	vaultResponse, err := s.client.Logical().ReadWithData(path, queryParams)
 
 	if err != nil {
