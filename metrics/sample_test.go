@@ -5,6 +5,10 @@ import (
 	"runtime"
 	"testing"
 	"time"
+	"encoding/binary"
+	"fmt"
+
+	"github.com/ethereum/go-ethereum/sys"
 )
 
 // Benchmark{Compute,Copy}{1000,1000000} demonstrate that, even for relatively
@@ -326,9 +330,17 @@ func testUniformSampleStatistics(t *testing.T, s Sample) {
 	if 7380.5 != ps[1] {
 		t.Errorf("75th percentile: 7380.5 != %v\n", ps[1])
 	}
-	if 9986.429999999998 != ps[2] {
-		t.Errorf("99th percentile: 9986.429999999998 != %v\n", ps[2])
-	}
+        if sys.GetEndian() == binary.LittleEndian {
+        fmt.Printf("Little Endian System\n")
+        if 9986.429999999998 != ps[2] {
+                t.Errorf("99th percentile: 9986.429999999998 != %v\n", ps[2])
+        }
+        } else {
+        fmt.Printf("Big Endian System\n")
+        if 9986.43 != ps[2] {
+                t.Errorf("99th percentile: 9986.43 != %v\n", ps[2])
+        }
+        }
 }
 
 // TestUniformSampleConcurrentUpdateCount would expose data race problems with

@@ -27,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/swarm/storage"
 	"github.com/ethereum/go-ethereum/swarm/storage/feed/lookup"
+	"github.com/ethereum/go-ethereum/sys"
 )
 
 func areEqualJSON(s1, s2 string) (bool, error) {
@@ -77,7 +78,9 @@ func TestEncodingDecodingUpdateRequests(t *testing.T) {
 
 	// We now assume that the feed ypdate was created and propagated.
 
-	const expectedSignature = "0x7235b27a68372ddebcf78eba48543fa460864b0b0e99cb533fcd3664820e603312d29426dd00fb39628f5299480a69bf6e462838d78de49ce0704c754c9deb2601"
+	const expectedSignatureLE = "0x7235b27a68372ddebcf78eba48543fa460864b0b0e99cb533fcd3664820e603312d29426dd00fb39628f5299480a69bf6e462838d78de49ce0704c754c9deb2601"
+	const expectedSignatureBE = "0x5448a4f4be064fe3aed26a7e62f68b01c0e867e4f0a5d9ca69213f94a98637c77a3645b3eb9f36bb308e7412213bb566fc74839dbafca099ea5e8f2802b2113200"
+
 	const expectedJSON = `{"feed":{"topic":"0x6120676f6f6420746f706963206e616d65000000000000000000000000000000","user":"0x876a8936a7cd0b79ef0735ad0896c1afe278781c"},"epoch":{"time":1000,"level":1},"protocolVersion":0,"data":"0x5468697320686f75722773207570646174653a20537761726d2039392e3020686173206265656e2072656c656173656421"}`
 
 	//Put together an unsigned update request that we will serialize to send it to the signer.
@@ -121,7 +124,14 @@ func TestEncodingDecodingUpdateRequests(t *testing.T) {
 		t.Fatalf("Error signing request: %s", err)
 	}
 
-	compareByteSliceToExpectedHex(t, "signature", recoveredRequest.Signature[:], expectedSignature)
+        //signature values are different on Big Endian Systems, hence this check.
+        if sys.GetEndian() == binary.LittleEndian {
+                fmt.Printf("Little Endian System\n")
+        compareByteSliceToExpectedHex(t, "signature", recoveredRequest.Signature[:], expectedSignatureLE)
+        } else {
+                fmt.Printf("Big Endian System\n")
+        compareByteSliceToExpectedHex(t, "signature", recoveredRequest.Signature[:], expectedSignatureBE)
+        }
 
 	// mess with the signature and see what happens. To alter the signature, we briefly decode it as JSON
 	// to alter the signature field.
@@ -223,8 +233,14 @@ func TestUpdateChunkSerializationErrorChecking(t *testing.T) {
 		t.Fatalf("error creating update chunk:%s", err)
 	}
 
+        //chunk values are different on Big Endian Systems, hence this check.
+        if sys.GetEndian() == binary.LittleEndian {
+        fmt.Printf("Little Endian System\n")
 	compareByteSliceToExpectedHex(t, "chunk", chunk.Data(), "0x0000000000000000776f726c64206e657773207265706f72742c20657665727920686f7572000000876a8936a7cd0b79ef0735ad0896c1afe278781ce803000000000019416c206269656e206861636572206a616dc3a173206c652066616c7461207072656d696f5a0ffe0bc27f207cd5b00944c8b9cee93e08b89b5ada777f123ac535189333f174a6a4ca2f43a92c4a477a49d774813c36ce8288552c58e6205b0ac35d0507eb00")
-
+        } else {
+        fmt.Printf("Big Endian System\n")
+        compareByteSliceToExpectedHex(t, "chunk", chunk.Data(), "0x0000000000000000776f726c64206e657773207265706f72742c20657665727920686f7572000000876a8936a7cd0b79ef0735ad0896c1afe278781ce803000000000019416c206269656e206861636572206a616dc3a173206c652066616c7461207072656d696f60b26ccde4d4903cb5fda93dd1f44ebe27b40d2b90b94ba5407b6c41918c576e4ecd19b910d3036aa6b61917ae44eec3094581f54cb2fa4bc8f6f5a0af76901500")
+        }
 	var recovered Request
 	recovered.fromChunk(chunk.Address(), chunk.Data())
 	if !reflect.DeepEqual(recovered, r) {

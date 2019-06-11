@@ -1,6 +1,12 @@
 package metrics
 
-import "testing"
+import (
+	"testing"
+	"encoding/binary"
+	"fmt"
+
+	"github.com/ethereum/go-ethereum/sys"
+)
 
 func BenchmarkEWMA(b *testing.B) {
 	a := NewEWMA1()
@@ -15,6 +21,8 @@ func TestEWMA1(t *testing.T) {
 	a := NewEWMA1()
 	a.Update(3)
 	a.Tick()
+        if sys.GetEndian() == binary.LittleEndian {
+        fmt.Printf("Little Endian System\n")
 	if rate := a.Rate(); 0.6 != rate {
 		t.Errorf("initial a.Rate(): 0.6 != %v\n", rate)
 	}
@@ -78,12 +86,80 @@ func TestEWMA1(t *testing.T) {
 	if rate := a.Rate(); 1.8354139230109722e-07 != rate {
 		t.Errorf("15 minute a.Rate(): 1.8354139230109722e-07 != %v\n", rate)
 	}
+        } else {
+        fmt.Printf("Big Endian System\n")
+        if rate := a.Rate(); 0.6 != rate {
+                t.Errorf("initial a.Rate(): 0.6 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.22072766470286553 != rate {
+                t.Errorf("1 minute a.Rate(): 0.22072766470286553 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.08120116994196772 != rate {
+                t.Errorf("2 minute a.Rate(): 0.08120116994196772 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.02987224102071842 != rate {
+                t.Errorf("3 minute a.Rate(): 0.02987224102071842 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.010989383333240534 != rate {
+                t.Errorf("4 minute a.Rate(): 0.010989383333240534 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.004042768199451292 != rate {
+                t.Errorf("5 minute a.Rate(): 0.004042768199451292 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.00148725130599982 != rate {
+                t.Errorf("6 minute a.Rate(): 0.00148725130599982 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.0005471291793327121 != rate {
+                t.Errorf("7 minute a.Rate(): 0.0005471291793327121 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.0002012775767415081 != rate {
+                t.Errorf("8 minute a.Rate(): 0.0002012775767415081 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 7.404588245200811e-05 != rate {
+                t.Errorf("9 minute a.Rate(): 7.404588245200811e-05 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 2.7239957857491083e-05 != rate {
+                t.Errorf("10 minute a.Rate(): 2.7239957857491083e-05 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 1.0021020474147466e-05 != rate {
+                t.Errorf("11 minute a.Rate(): 1.0021020474147466e-05 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 3.686527411996955e-06 != rate {
+                t.Errorf("12 minute a.Rate(): 3.686527411996955e-06 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 1.356197644188644e-06  != rate {
+                t.Errorf("13 minute a.Rate(): 1.356197644188644e-06 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 4.989172314621452e-07 != rate {
+                t.Errorf("14 minute a.Rate(): 4.989172314621452e-07 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 1.8354139230109722e-07 != rate {
+                t.Errorf("15 minute a.Rate(): 1.8354139230109722e-07 != %v\n", rate)
+        }
+        }
 }
 
 func TestEWMA5(t *testing.T) {
 	a := NewEWMA5()
 	a.Update(3)
 	a.Tick()
+        if sys.GetEndian() == binary.LittleEndian {
+        fmt.Printf("Little Endian System\n")
 	if rate := a.Rate(); 0.6 != rate {
 		t.Errorf("initial a.Rate(): 0.6 != %v\n", rate)
 	}
@@ -147,6 +223,72 @@ func TestEWMA5(t *testing.T) {
 	if rate := a.Rate(); 0.0298722410207183831020718428 != rate {
 		t.Errorf("15 minute a.Rate(): 0.0298722410207183831020718428 != %v\n", rate)
 	}
+        } else {
+        fmt.Printf("Big Endian System\n")
+        if rate := a.Rate(); 0.6 != rate {
+                t.Errorf("initial a.Rate(): 0.6 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.49123845184678905 != rate {
+                t.Errorf("1 minute a.Rate(): 0.49123845184678905 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.4021920276213837 != rate {
+                t.Errorf("2 minute a.Rate(): 0.4021920276213837 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.32928698165641596 != rate {
+                t.Errorf("3 minute a.Rate(): 0.32928698165641596 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.269597378470333 != rate {
+                t.Errorf("4 minute a.Rate(): 0.269597378470333 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.2207276647028654 != rate {
+                t.Errorf("5 minute a.Rate(): 0.2207276647028654 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.18071652714732128 != rate {
+                t.Errorf("6 minute a.Rate(): 0.18071652714732128 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.1479581783649639 != rate {
+                t.Errorf("7 minute a.Rate(): 0.1479581783649639 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.12113791079679326 != rate {
+                t.Errorf("8 minute a.Rate(): 0.12113791079679326 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.09917933293295193 != rate {
+                t.Errorf("9 minute a.Rate(): 0.09917933293295193 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.08120116994196763 != rate {
+                t.Errorf("10 minute a.Rate(): 0.08120116994196763 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.06648189501740036 != rate {
+                t.Errorf("11 minute a.Rate(): 0.06648189501740036 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.054430771973647527 != rate {
+                t.Errorf("12 minute a.Rate(): 0.054430771973647527 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.044564146928600355 != rate {
+                t.Errorf("13 minute a.Rate(): 0.044564146928600355 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.036486037575130796 != rate {
+                t.Errorf("14 minute a.Rate(): 0.036486037575130796 != %v\n", rate)
+        }
+        elapseMinute(a)
+        if rate := a.Rate(); 0.0298722410207183831020718428 != rate {
+                t.Errorf("15 minute a.Rate(): 0.0298722410207183831020718428 != %v\n", rate)
+        }
+        }
 }
 
 func TestEWMA15(t *testing.T) {

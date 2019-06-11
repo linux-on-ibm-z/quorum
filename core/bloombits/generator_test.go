@@ -26,9 +26,10 @@ import (
 
 // Tests that batched bloom bits are correctly rotated from the input bloom
 // filters.
+var input, output [types.BloomBitLength][types.BloomByteLength]byte
+
 func TestGenerator(t *testing.T) {
 	// Generate the input and the rotated output
-	var input, output [types.BloomBitLength][types.BloomByteLength]byte
 
 	for i := 0; i < types.BloomBitLength; i++ {
 		for j := 0; j < types.BloomBitLength; j++ {
